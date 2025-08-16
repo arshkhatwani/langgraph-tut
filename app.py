@@ -31,6 +31,7 @@ server_params = StdioServerParameters(
     args=["duckduckgo-mcp-server"],
 )
 
+
 async def chatbot(state: State):
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
@@ -40,14 +41,16 @@ async def chatbot(state: State):
             # Get tools
             tools = await load_mcp_tools(session)
 
-            agent = create_react_agent(llm, tools, prompt='You are a search engine')
+            agent = create_react_agent(llm, tools, prompt="You are a search engine")
             agent_response = await agent.ainvoke({"messages": state.messages})
             return {"messages": agent_response.get("messages")}
+
 
 graph_builder.add_node("chatbot", chatbot)
 graph_builder.add_edge(START, "chatbot")
 graph_builder.add_edge("chatbot", END)
 graph = graph_builder.compile()
+
 
 async def stream_graph_updates(user_input: str):
     async for event in graph.astream({"messages": [HumanMessage(content=user_input)]}):
@@ -69,6 +72,7 @@ async def main():
             print("User: " + user_input)
             await stream_graph_updates(user_input)
             break
+
 
 if __name__ == "__main__":
     asyncio.run(main())
