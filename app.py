@@ -13,6 +13,8 @@ from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+from prompts.chatbot import CHATBOT_PROMPT
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -41,7 +43,7 @@ async def chatbot(state: State):
             # Get tools
             tools = await load_mcp_tools(session)
 
-            agent = create_react_agent(llm, tools, prompt="You are a search engine")
+            agent = create_react_agent(llm, tools, prompt=CHATBOT_PROMPT)
             agent_response = await agent.ainvoke({"messages": state.messages})
             return {"messages": agent_response.get("messages")}
 
